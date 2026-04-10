@@ -1,3 +1,0 @@
-# Archivo de ejemplo. Reemplaza las URLs con las que necesites.
-https://www.github.com
-https://www.microsoft.com

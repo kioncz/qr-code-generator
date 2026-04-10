@@ -1,0 +1,26 @@
+# Ignorar archivos de entorno virtual
+.venv/
+venv/
+ENV/
+
+# Ignorar directorios de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignorar archivos de configuración del editor
+.vscode/
+.idea/
+
+# Ignorar directorio de salida de los QR
+qrs/
+links.txt
+
+# Artefactos de compilacion (PyInstaller)
+build/
+dist/
+*.spec
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db

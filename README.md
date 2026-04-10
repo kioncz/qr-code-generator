@@ -1,35 +1,26 @@
-# Generador de Códigos QR
+# QR Generator App
 
-Este es un sencillo pero práctico script de Python que genera códigos QR a partir de enlaces web. Fue creado como una herramienta útil para convertir rápidamente una o varias URLs en imágenes QR en formato PNG.
+Aplicacion de escritorio para crear codigos QR desde uno o varios enlaces, con interfaz moderna y flujo rapido para usuario final.
 
-## Características
+## Funcionalidades
 
-- **Generación individual:** Crea un código QR para un solo enlace.
-- **Generación en lote:** Procesa un archivo de texto (`links.txt`) con múltiples enlaces para generar varios códigos QR a la vez.
-- **Nombres automáticos:** Si no se especifica un nombre, el script asigna uno seguro basado en la URL.
-- **Directorio de salida:** Permite organizar los códigos QR generados en un directorio específico.
+- Generacion de QR desde un enlace individual.
+- Generacion en lote pegando multiples enlaces (uno por linea).
+- Carga de enlaces desde archivo de texto.
+- Seleccion de carpeta de salida desde explorador.
+- Nombres automaticos amigables basados en dominio.
+    - Ejemplo: `https://www.google.com` -> `google-qr.png`
+- Evita colisiones de nombre con numeracion automatica.
+    - Ejemplo: `google-qr.png`, `google-qr-2.png`, `google-qr-3.png`
+- Mensajes y notificaciones visuales integradas al estilo de la app.
+- Soporte de icono personalizado para ventana principal y dialogos.
 
-## Tecnologías
+## Tecnologias implementadas
 
-- **Python**
-- **qrcode[pil]:** La biblioteca principal para la creación de los QR.
+- Python 3
+- PyQt6 (interfaz grafica)
+- qrcode + Pillow (generacion y exportacion de imagen)
 
-## Uso Básico
+## Privacidad
 
-1.  **Instalar dependencias:**
-    ```powershell
-    pip install -r requirements.txt
-    ```
-
-2.  **Generar un QR para un solo enlace:**
-    ```powershell
-    python generate_qr.py "https://github.com" -o mi_qr.png
-    ```
-
-3.  **Generar QR para una lista de enlaces:**
-    Añade tus enlaces en `links.txt` y ejecuta:
-    ```powershell
-    python generate_qr.py -i links.txt -d qrs
-    ```
-    Las imágenes se guardarán en la carpeta `qrs/`.
-
+La aplicacion no envia enlaces a internet ni guarda informacion personal fuera de los archivos QR que tu decidas exportar.

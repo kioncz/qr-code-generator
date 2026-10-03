@@ -14,6 +14,8 @@ Aplicacion de escritorio para crear codigos QR desde uno o varios enlaces, con i
     - Ejemplo: `google-qr.png`, `google-qr-2.png`, `google-qr-3.png`
 - Mensajes y notificaciones visuales integradas al estilo de la app.
 - Soporte de icono personalizado para ventana principal y dialogos.
+- Configuracion del tamano y margen de los codigos QR.
+- Selector de idioma entre espanol e ingles.
 
 ## Tecnologias implementadas
 

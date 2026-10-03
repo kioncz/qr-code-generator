@@ -21,5 +21,17 @@
   "margin_tip": "Margen blanco alrededor del codigo QR.",
   "error_title": "Error",
   "no_links": "Debes agregar al menos un link.",
-  "no_output_dir": "Selecciona una carpeta de salida."
+  "no_output_dir": "Selecciona una carpeta de salida.",
+  "warning_title": "Aviso",
+  "no_link_warning": "Escribe un link antes de anadir.",
+  "links_file_filter": "Archivos de texto (*.txt);;Todos los archivos (*.*)",
+  "info_title": "Informacion",
+  "info_description": "El archivo no contiene links validos.",
+  "select_folder": "Selecciona carpeta de guardado",
+  "error_generating_qr": "Error al generar el codigo QR. Error: {error}",
+  "more_files": "archivo(s) mas",
+  "generation_complete": "Listo",
+  "generated": "Se generaron",
+  "qrs_in": "QR(s) en:",
+  "files": "Archivos:"
 }

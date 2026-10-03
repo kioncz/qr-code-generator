@@ -80,13 +80,27 @@ def deduplicate_filenames(names: list[str]) -> list[str]:
     return result
 
 
-def generate_bulk_qr(links: list[str], out_dir: Path, image_format: str = "PNG") -> list[Path]:
+def generate_bulk_qr(
+    links: list[str],
+    out_dir: Path,
+    image_format: str = "PNG",
+    box_size: int = 10,
+    border: int = 4,
+) -> list[Path]:
     ext = "." + image_format.lower()
     names = deduplicate_filenames([friendly_filename_from_url(url, ext=ext) for url in links])
 
     created: list[Path] = []
     for url, name in zip(links, names):
         out_path = out_dir / name
-        created.append(make_qr(url, out_path, image_format=image_format))
+        created.append(
+            make_qr(
+                url,
+                out_path,
+                box_size=box_size,
+                border=border,
+                image_format=image_format,
+            )
+        )
 
     return created

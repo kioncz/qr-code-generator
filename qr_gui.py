@@ -1,11 +1,16 @@
 from pathlib import Path
+import json
 import sys
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
+    QDialog,
+    QDialogButtonBox,
     QFileDialog,
+    QFormLayout,
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -16,6 +21,7 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
+    QSpinBox,
 )
 
 from qr_core import generate_bulk_qr, read_links_file
@@ -25,6 +31,7 @@ ICON_CANDIDATES = [
     Path(__file__).with_name("Qr-icon.png"),
     Path(__file__).parent / "assets" / "Qr-icon.png",
 ]
+LANG_DIR = Path(__file__).with_name("lang")
 
 
 APP_STYLES = """
@@ -109,14 +116,29 @@ QMessageBox QPushButton:hover {
 class QRMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QR Generator")
         self.setMinimumSize(860, 580)
         self.app_icon = self._load_app_icon()
         if self.app_icon is not None:
             self.setWindowIcon(self.app_icon)
 
         self.output_dir = str(Path.cwd() / "qrs")
+        self.box_size = 10
+        self.border = 4
+        self.language = "es"
+        self.translations = self._load_translation(self.language)
+        self.setWindowTitle(self._text("window_title"))
         self._build_ui()
+
+    def _load_translation(self, language: str) -> dict[str, str]:
+        path = LANG_DIR / f"{language}.json"
+        try:
+            with path.open("r", encoding="utf-8") as file:
+                return json.load(file)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"No se pudo cargar el idioma '{language}': {exc}") from exc
+
+    def _text(self, key: str) -> str:
+        return self.translations[key]
 
     def _load_app_icon(self):
         for icon_path in ICON_CANDIDATES:
@@ -142,6 +164,7 @@ class QRMainWindow(QMainWindow):
         dialog.exec()
 
     def _build_ui(self):
+        self.setWindowTitle(self._text("window_title"))
         root = QWidget()
         outer_layout = QVBoxLayout(root)
         outer_layout.setContentsMargins(24, 24, 24, 24)
@@ -152,19 +175,20 @@ class QRMainWindow(QMainWindow):
         layout.setContentsMargins(22, 22, 22, 22)
         layout.setSpacing(14)
 
-        title = QLabel("Generador de codigos QR")
+        title = QLabel(self._text("title"))
         title.setObjectName("title")
-        subtitle = QLabel("Agrega uno o varios enlaces y exporta PNG con nombres amigables.")
+        subtitle = QLabel(self._text("subtitle"))
         subtitle.setStyleSheet("color:#4b5563;")
+
 
         layout.addWidget(title)
         layout.addWidget(subtitle)
 
         add_row = QHBoxLayout()
         self.link_input = QLineEdit()
-        self.link_input.setPlaceholderText("https://example.com")
+        self.link_input.setPlaceholderText(self._text("link_placeholder"))
 
-        add_btn = QPushButton("Anadir")
+        add_btn = QPushButton(self._text("add"))
         add_btn.clicked.connect(self.add_single_link)
 
         add_row.addWidget(self.link_input)
@@ -172,33 +196,37 @@ class QRMainWindow(QMainWindow):
         layout.addLayout(add_row)
 
         self.links_text = QTextEdit()
-        self.links_text.setPlaceholderText("Pega aqui varios links, uno por linea")
+        self.links_text.setPlaceholderText(self._text("links_placeholder"))
         layout.addWidget(self.links_text)
 
         tools_row = QHBoxLayout()
-        load_btn = QPushButton("Cargar archivo de links")
+        load_btn = QPushButton(self._text("load_links"))
         load_btn.clicked.connect(self.load_links_file)
 
-        clear_btn = QPushButton("Limpiar")
+        clear_btn = QPushButton(self._text("clear"))
         clear_btn.clicked.connect(self.links_text.clear)
+
+        settings_btn = QPushButton(self._text("settings"))
+        settings_btn.clicked.connect(self.open_settings)
 
         tools_row.addWidget(load_btn)
         tools_row.addWidget(clear_btn)
         tools_row.addStretch()
+        tools_row.addWidget(settings_btn)
         layout.addLayout(tools_row)
 
         output_row = QHBoxLayout()
         self.output_input = QLineEdit(self.output_dir)
 
-        choose_btn = QPushButton("Elegir carpeta")
+        choose_btn = QPushButton(self._text("choose_folder"))
         choose_btn.clicked.connect(self.choose_output_dir)
 
-        output_row.addWidget(QLabel("Guardar en:"), alignment=Qt.AlignmentFlag.AlignVCenter)
+        output_row.addWidget(QLabel(self._text("save_to")), alignment=Qt.AlignmentFlag.AlignVCenter)
         output_row.addWidget(self.output_input)
         output_row.addWidget(choose_btn)
         layout.addLayout(output_row)
 
-        generate_btn = QPushButton("Generar QRs")
+        generate_btn = QPushButton(self._text("generate"))
         generate_btn.setObjectName("primary")
         generate_btn.clicked.connect(self.generate_qrs)
         layout.addWidget(generate_btn)
@@ -244,6 +272,52 @@ class QRMainWindow(QMainWindow):
         if selected:
             self.output_input.setText(selected)
 
+    def open_settings(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle(self._text("settings_title"))
+        dialog.setWindowIcon(self.app_icon or QIcon())
+
+        form = QFormLayout(dialog)
+        box_size_input = QSpinBox()
+        box_size_input.setRange(1, 50)
+        box_size_input.setValue(self.box_size)
+        box_size_input.setToolTip(self._text("qr_size_tip"))
+
+        border_input = QSpinBox()
+        border_input.setRange(0, 20)
+        border_input.setValue(self.border)
+        border_input.setToolTip(self._text("margin_tip"))
+
+        form.addRow(self._text("qr_size"), box_size_input)
+        form.addRow(self._text("margin"), border_input)
+
+        language_input = QComboBox()
+        language_input.addItem(self._text("spanish"), "es")
+        language_input.addItem(self._text("english"), "en")
+        language_input.setCurrentIndex(language_input.findData(self.language))
+        form.addRow(self._text("language"), language_input)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.box_size = box_size_input.value()
+            self.border = border_input.value()
+            selected_language = language_input.currentData()
+            if selected_language != self.language:
+                links = self.links_text.toPlainText()
+                output_dir = self.output_input.text()
+                self.language = selected_language
+                self.translations = self._load_translation(self.language)
+                self._build_ui()
+                self.links_text.setPlainText(links)
+                self.output_input.setText(output_dir)
+
     def _collect_links(self) -> list[str]:
         raw = self.links_text.toPlainText()
         links = [line.strip() for line in raw.splitlines() if line.strip() and not line.strip().startswith("#")]
@@ -252,18 +326,24 @@ class QRMainWindow(QMainWindow):
     def generate_qrs(self):
         links = self._collect_links()
         if not links:
-            self._show_message("error", "Error", "Debes agregar al menos un link.")
+            self._show_message("error", self._text("error_title"), self._text("no_links"))
             return
 
         out_dir = self.output_input.text().strip()
         if not out_dir:
-            self._show_message("error", "Error", "Selecciona una carpeta de salida.")
+            self._show_message("error", self._text("error_title"), self._text("no_output_dir"))
             return
 
         try:
-            created = generate_bulk_qr(links, Path(out_dir), image_format="PNG")
+            created = generate_bulk_qr(
+                links,
+                Path(out_dir),
+                image_format="PNG",
+                box_size=self.box_size,
+                border=self.border,
+            )
         except Exception as exc:
-            self._show_message("error", "Error", f"No se pudieron generar los QR:\n{exc}")
+            self._show_message("error", self._text("error_title"), f"No se pudieron generar los QR:\n{exc}")
             return
 
         preview = "\n".join(path.name for path in created[:10])

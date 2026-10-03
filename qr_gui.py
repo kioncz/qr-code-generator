@@ -237,7 +237,7 @@ class QRMainWindow(QMainWindow):
     def add_single_link(self):
         link = self.link_input.text().strip()
         if not link:
-            self._show_message("warning", "Aviso", "Escribe un link antes de anadir.")
+            self._show_message("warning", self._text("warning_title"), self._text("no_link_warning"))
             return
 
         current = self.links_text.toPlainText().strip()
@@ -251,16 +251,16 @@ class QRMainWindow(QMainWindow):
     def load_links_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "Selecciona archivo de links",
+            self._text("load_links"),
             str(Path.cwd()),
-            "Text files (*.txt);;All files (*.*)",
+            self._text("links_file_filter"),
         )
         if not file_path:
             return
 
         links = list(read_links_file(Path(file_path)))
         if not links:
-            self._show_message("info", "Info", "El archivo no contiene links validos.")
+            self._show_message("info", self._text("info_title"), self._text("info_description"))
             return
 
         existing = self.links_text.toPlainText().strip()
@@ -268,7 +268,7 @@ class QRMainWindow(QMainWindow):
         self.links_text.setPlainText(merged)
 
     def choose_output_dir(self):
-        selected = QFileDialog.getExistingDirectory(self, "Selecciona carpeta de guardado", self.output_input.text())
+        selected = QFileDialog.getExistingDirectory(self, self._text("select_folder"), self.output_input.text())
         if selected:
             self.output_input.setText(selected)
 
@@ -343,17 +343,22 @@ class QRMainWindow(QMainWindow):
                 border=self.border,
             )
         except Exception as exc:
-            self._show_message("error", self._text("error_title"), f"No se pudieron generar los QR:\n{exc}")
+            self._show_message(
+                "error",
+                self._text("error_title"),
+                self._text("error_generating_qr").format(error=str(exc)),
+            )
             return
 
         preview = "\n".join(path.name for path in created[:10])
         if len(created) > 10:
-            preview += f"\n... y {len(created) - 10} archivo(s) mas"
+            preview += f"\n... {len(created) - 10} {self._text('more_files')}"
 
         self._show_message(
             "info",
-            "Listo",
-            f"Se generaron {len(created)} QR(s) en:\n{out_dir}\n\nArchivos:\n{preview}",
+            self._text("generation_complete"),
+            f"{self._text('generated')} {len(created)} {self._text('qrs_in')}\n"
+            f"{out_dir}\n\n{self._text('files')}\n{preview}",
         )
 
 

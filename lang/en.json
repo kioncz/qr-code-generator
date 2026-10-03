@@ -21,5 +21,17 @@
   "margin_tip": "White margin around the QR code.",
   "error_title": "Error",
   "no_links": "You must add at least one link.",
-  "no_output_dir": "Select an output folder."
+  "no_output_dir": "Select an output folder.",
+  "warning_title": "Warning",
+  "no_link_warning": "Type a link before adding.",
+  "links_file_filter": "Text files (*.txt);;All files (*.*)",
+  "info_title": "Information",
+  "info_description": "The file does not contain valid links.",
+  "select_folder": "Select save folder",
+  "error_generating_qr": "Error generating QR code. Error: {error}",
+  "more_files": "more file(s)",
+  "generation_complete": "Done",
+  "generated": "Generated",
+  "qrs_in": "QR(s) in:",
+  "files": "Files:"
 }
